@@ -1,4 +1,5 @@
 function WTF () {
+    strip = neopixel.create(DigitalPin.P2, 8, NeoPixelMode.RGB)
     strip.setBrightness(20)
     dht11_dht22.queryData(
     DHTtype.DHT11,
@@ -10,11 +11,12 @@ function WTF () {
     dht11_dht22.selectTempType(tempType.fahrenheit)
     basic.pause(1000)
     temp = dht11_dht22.readData(dataType.temperature)
+    dht11_dht22.selectTempType(tempType.fahrenheit)
     ESP8266ThingSpeak.connectThingSpeak(
     "api.thingspeak.com",
     "F3CH19DDYVTDD19C",
     temp,
-    2,
+    dht11_dht22.readData(dataType.humidity),
     0,
     0,
     0,
@@ -44,16 +46,17 @@ function WTF () {
         strip.showColor(neopixel.colors(NeoPixelColors.White))
         strip.setPixelColor(5, neopixel.colors(NeoPixelColors.Red))
         strip.show()
+        basic.showIcon(IconNames.Angry)
     } else {
         strip.showColor(neopixel.colors(NeoPixelColors.White))
         strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Red))
     }
-    serial.writeValue("Temp", temp)
     basic.pause(100)
     strip.show()
 }
 let temp = 0
 let strip: neopixel.Strip = null
+basic.showIcon(IconNames.Heart)
 ESP8266ThingSpeak.connectWifi(
 SerialPin.P8,
 SerialPin.P12,
@@ -62,8 +65,6 @@ BaudRate.BaudRate115200,
 "ZorranRokz.!"
 )
 ESP8266ThingSpeak.wait(5000)
-dht11_dht22.selectTempType(tempType.fahrenheit)
-strip = neopixel.create(DigitalPin.P2, 8, NeoPixelMode.RGB)
 loops.everyInterval(30000, function () {
     WTF()
 })
